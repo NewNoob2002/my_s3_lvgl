@@ -123,11 +123,11 @@ extern "C" void app_main(void)
   {
     Serial.println("gfx->begin() failed!");
   }
-  if (SPI.begin(19, 20, 18, -1)) // SCK, MISO, MOSI, SS
-  {
-    Serial.println("SPI.begin() success!");
-  }
-  formatCard();
+  // if (SPI.begin(19, 20, 18, -1)) // SCK, MISO, MOSI, SS
+  // {
+  //   Serial.println("SPI.begin() success!");
+  // }
+  // formatCard();
   gfx->fillScreen(RED);
   gfx->setTextSize(2);
 #ifdef DF_GFX_BL
