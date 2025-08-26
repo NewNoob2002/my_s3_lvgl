@@ -3,5 +3,5 @@
 void HAL::Init()
 {
     Serial.begin(115200);
-    Display_Init();
+    HAL::Display_Init();
 }

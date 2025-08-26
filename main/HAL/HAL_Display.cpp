@@ -1,6 +1,5 @@
 #include "HAL_internal.h"
 #include "Arduino_GFX_Library.h"
-#include "logo.h"
 
 Arduino_DataBus *bus = new Arduino_ESP32SPIDMA(CONFIG_SCREEN_DC_PIN /* DC */,
                                                CONFIG_SCREEN_CS_PIN /* CS */,
@@ -28,7 +27,7 @@ bool HAL::Display_Init()
         Serial.println("gfx->begin() failed!");
         return false;
     }
-    gfx->drawBitmap(0, 0, (uint8_t *)gImage_1, 150, 126, GREEN);
+    gfx->fillScreen(PURPLE);
 #ifdef CONFIG_SCREEN_BLK_PIN
     pinMode(CONFIG_SCREEN_BLK_PIN, OUTPUT);
     digitalWrite(CONFIG_SCREEN_BLK_PIN, HIGH);
