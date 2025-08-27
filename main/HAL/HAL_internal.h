@@ -16,4 +16,7 @@ namespace HAL
     /*Display*/
     bool Display_Init();
     void Display_Update(void *e);
+
+    /*SD*/
+    bool SD_Init();
 }

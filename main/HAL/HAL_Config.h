@@ -63,9 +63,8 @@
 #define CONFIG_DEBUG_SERIAL         Serial
 
 /* SD CARD */
-// #define CONFIG_SD_SPI               SPI_2
-// #define CONFIG_SD_CD_PIN            PA8
-// #define CONFIG_SD_MOSI_PIN          PB15
-// #define CONFIG_SD_MISO_PIN          PB14
-// #define CONFIG_SD_SCK_PIN           PB13
-// #define CONFIG_SD_CS_PIN            PB12
+#define CONFIG_SD_SPI               SPI
+#define CONFIG_SD_MOSI_PIN          42
+#define CONFIG_SD_MISO_PIN          40
+#define CONFIG_SD_SCK_PIN           41
+#define CONFIG_SD_CS_PIN            2

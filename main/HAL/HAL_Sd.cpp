@@ -2,9 +2,6 @@
 #include <SdFat.h>
 #include "sdios.h"
 
-
-#define SD_CONFIG SdSpiConfig(SS, DEDICATED_SPI, SD_SCK_MHZ(16), &SPI)
-
 // SdCardFactory constructs and initializes the appropriate card.
 SdCardFactory cardFactory;
 // Pointer to generic SD card.
@@ -45,7 +42,7 @@ void formatCard()
   uint32_t lastBlock;
   uint16_t n = 0;
   // Select and initialize proper card driver.
-  m_card = cardFactory.newCard(SdSpiConfig(SS, DEDICATED_SPI, SD_SCK_MHZ(16)));
+  m_card = cardFactory.newCard(SdSpiConfig(CONFIG_SD_CS_PIN, DEDICATED_SPI, SD_SCK_MHZ(16), &CONFIG_SD_SPI));
   if (!m_card || m_card->errorCode())
   {
     sdError("card init failed.");
@@ -110,4 +107,15 @@ void formatCard()
     sdErrorHalt();
   }
   cout << F("Run the SdInfo example for format details.") << endl;
+}
+
+
+bool HAL::SD_Init()
+{
+  if(!SPI.begin(CONFIG_SD_SCK_PIN, CONFIG_SD_MISO_PIN, CONFIG_SD_MOSI_PIN)) {
+    log_e("SPI.begin() failed!");
+    return false;
+  }
+    formatCard();
+    return true;
 }
