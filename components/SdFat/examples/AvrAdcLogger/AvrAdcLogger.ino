@@ -37,7 +37,7 @@ MinimumSerial MinSerial;
 // Note: Uno will not support SD_FAT_TYPE = 3.
 // SD_FAT_TYPE = 0 for SdFat/File as defined in SdFatConfig.h,
 // 1 for FAT16/FAT32, 2 for exFAT, 3 for FAT16/FAT32 and exFAT.
-#define SD_FAT_TYPE 2
+#define SD_FAT_TYPE 3
 //------------------------------------------------------------------------------
 // Set USE_RTC nonzero for file timestamps.
 // RAM use will be marginal on Uno with RTClib.

@@ -5,6 +5,7 @@
  * \brief Internal HAL include file.
  */
 #include "Arduino.h"
+#include "HAL_Define.h"
 #include "HAL_Config.h"
 
 namespace HAL
