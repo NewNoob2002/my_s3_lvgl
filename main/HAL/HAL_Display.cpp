@@ -22,6 +22,8 @@ Arduino_GFX *gfx = new Arduino_ST7789(bus,
                                       CONFIG_SCREEN_OFFSETX2 /* col offset 2 */,
                                       CONFIG_SCREEN_OFFSETY2 /* row offset 2 */);
 
+SemaphoreHandle_t lvglSemaphore = nullptr;
+
 bool HAL::Display_Init()
 {
     if (!gfx->begin(30 * 1000 * 1000))
@@ -35,6 +37,10 @@ bool HAL::Display_Init()
     pinMode(CONFIG_SCREEN_BLK_PIN, OUTPUT);
     digitalWrite(CONFIG_SCREEN_BLK_PIN, HIGH);
 #endif
+    if(!lvglSemaphore)
+    {
+        lvglSemaphore = xSemaphoreCreateMutex();
+    }
     return true;
 }
 
@@ -42,7 +48,11 @@ void HAL::Display_Update(void *e)
 {
     while (1)
     {
-        lv_timer_handler();
+        if(xSemaphoreTake(lvglSemaphore, 10) == pdPASS)
+        {
+            lv_timer_handler();
+            xSemaphoreGive(lvglSemaphore);
+        }
         vTaskDelay(5);
     }
 }

@@ -300,7 +300,7 @@ void beginSdCard()
     else
       SdStatus.outOfSDSpace = false;
 
-    log_i("SD init success. Card size: %d MB, Free space: %d MB",
+    log_i("\nSD init success. Card size: %d MB, Free space: %d MB",
           SdStatus.sdCardSizeMb, SdStatus.sdFreeSpaceMb);
 
     online.microSd = true;
@@ -314,12 +314,8 @@ bool HAL::SD_Init()
   {
     if (!SPI.begin(CONFIG_SD_SCK_PIN, CONFIG_SD_MISO_PIN, CONFIG_SD_MOSI_PIN))
     {
-      log_e("SPI.begin() failed!");
+      log_e("\nSPI.begin() failed!");
       return false;
-    }
-    else
-    {
-      log_i("SPI.begin() success.");
     }
     // formatCard();
     beginSdCard();

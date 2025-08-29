@@ -51,6 +51,10 @@ typedef struct settings
 #define SD_FAT_TYPE 3
 extern SemaphoreHandle_t sdCardSemaphore;
 extern SdCardStatus SdStatus;
+
+/*HAL_Display*/
+extern SemaphoreHandle_t lvglSemaphore;
+
 /*HAL*/
 extern present_devices present;
 extern online_devices online;
