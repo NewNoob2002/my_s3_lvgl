@@ -4,10 +4,6 @@
 
 ArduinoOutStream cout(Serial);
 
-#ifndef DISABLE_FS_H_WARNING
-#define DISABLE_FS_H_WARNING // Disable warning for type File not defined.
-#endif                       // DISABLE_FS_H_WARNING
-
 #if SD_FAT_TYPE == 0
 SdFat sd;
 File file;
@@ -198,8 +194,6 @@ void beginSdCard()
   else
     systemSettings.enableSd = true;
 
-  bool gotSemaphore = false;
-
   while (systemSettings.enableSd)
   {
     if (sdCardSemaphore == nullptr)
@@ -210,8 +204,6 @@ void beginSdCard()
       log_d("sdCardSemaphore failed to yield, HAL_Sd.cpp line %d", __LINE__);
       break;
     }
-
-    gotSemaphore = true;
     markSemaphore(FUNCTION_BEGINSD);
 
     if (sdCard == nullptr)

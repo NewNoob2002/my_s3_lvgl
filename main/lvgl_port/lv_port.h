@@ -4,6 +4,7 @@
  * \brief LVGL port include file.
  */
 #include "lvgl.h"
+#include "lv_demos.h"
 
 void lv_port_disp_init();
 void lv_port_indev_init();

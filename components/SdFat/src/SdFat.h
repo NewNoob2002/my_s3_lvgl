@@ -442,6 +442,9 @@ typedef FsBaseFile SdBaseFile;
 #error Invalid SDFAT_FILE_TYPE
 #endif  // SDFAT_FILE_TYPE
 //
+#ifndef DISABLE_FS_H_WARNING
+#define DISABLE_FS_H_WARNING // Disable warning for type File not defined.
+#endif                       // DISABLE_FS_H_WARNING
 // Only define File if FS.h is not included.
 // Line with test for __has_include must not have operators or parentheses.
 #if defined __has_include
