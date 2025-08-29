@@ -29,6 +29,7 @@ bool HAL::Display_Init()
         Serial.println("gfx->begin() failed!");
         return false;
     }
+    // gfx->setRotation(0);
     gfx->fillScreen(BLACK);
 #ifdef CONFIG_SCREEN_BLK_PIN
     pinMode(CONFIG_SCREEN_BLK_PIN, OUTPUT);
