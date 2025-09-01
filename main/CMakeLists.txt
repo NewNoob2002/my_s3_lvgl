@@ -2,24 +2,21 @@ set(MAIN_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 set(COMPONENT_ADD_INCLUDEDIRS
     ${MAIN_ROOT}/
-    ${MAIN_ROOT}/config
     ${MAIN_ROOT}/inc
     ${MAIN_ROOT}/HAL
+    ${MAIN_ROOT}/APP
     )
-file(GLOB SRCS
+file(GLOB_RECURSE SRCS
      ${MAIN_ROOT}/*.cpp
-     ${MAIN_ROOT}/HAL/*.cpp
-     ${MAIN_ROOT}/lvgl_port/*.cpp
-     ${MAIN_ROOT}/src/*.cpp
+     ${MAIN_ROOT}/*.c
      )
 
 set(COMPONENT_SRCS ${SRCS})
 
-
-### If you use arduino-esp32 components, please activate next comment line.
-# list(APPEND COMPONENT_REQUIRES arduino-esp32)
-
-
 message(STATUS "main use components = ${SRCS}")
 
 register_component()
+
+target_compile_options(${COMPONENT_LIB} PRIVATE 
+    "-Wno-missing-field-initializers"
+)
