@@ -24,8 +24,8 @@ void Startup::onViewLoad()
     Model.Init();
     Model.SetEncoderEnable(false);
     View.Create(_root);
-    StartupTimer = lv_timer_create(onTimer, 10, this);
-    lv_timer_set_repeat_count(StartupTimer, -1);
+    StartupTimer = lv_timer_create(onTimer, 1000, this);
+    lv_timer_set_repeat_count(StartupTimer, 1);
 }
 
 void Startup::onViewDidLoad()
@@ -76,12 +76,6 @@ void Startup::onViewDidUnload()
 void Startup::onTimer(lv_timer_t* timer)
 {
     Startup* instance = (Startup*)timer->user_data;
-    static uint32_t last = 0;
-    if(lv_tick_get() - last >= 1000)
-    {
-        last = lv_tick_get();
-        PAGE_STARTUP_PRINTF("onTimer, now: %" PRIu32, lv_tick_get());
-    }
     // instance->_Manager->Replace("Pages/Dialplate");
 }
 

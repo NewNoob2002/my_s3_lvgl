@@ -23,7 +23,7 @@
 #ifndef __PAGE_H
 #define __PAGE_H
 
-#define DEBUG 1
+#define PAGE_DEBUG 0
 
 
 #include <stdio.h>

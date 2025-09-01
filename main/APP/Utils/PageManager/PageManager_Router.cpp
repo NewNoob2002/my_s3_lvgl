@@ -489,7 +489,7 @@ void PageManager::SetGlobalLoadAnimType(LoadAnim_t anim, uint16_t time, lv_anim_
     _AnimState.Global.Time = time;
     _AnimState.Global.Path = path;
 
-    PM_LOG_INFO("Set global load anim type = %d", anim);
+    PM_LOG_INFO("Set global load anim type = %s", GetPageCurrentAnimName(anim));
 }
 
 /**
@@ -523,9 +523,9 @@ void PageManager::SwitchAnimTypeUpdate(PageBase* base)
         else
         {
             PM_LOG_INFO(
-                "Page(%s) custom Anim.Type set = %d",
+                "Page(%s) custom Anim.Type set = %s",
                 base->_Name,
-                base->priv.Anim.Attr.Type
+                GetPageCurrentAnimName((LoadAnim_t)base->priv.Anim.Attr.Type)
             );
         }
         _AnimState.Current = base->priv.Anim.Attr;

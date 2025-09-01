@@ -4,7 +4,7 @@
 #include "StartUpView.h"
 #include "StartUpModel.h"
 
-#if defined(DEBUG)
+#if PAGE_DEBUG
 #define PAGE_STARTUP_PRINTF(fmt, ...) printf("Startup::" fmt "\n", ##__VA_ARGS__)
 #else
 #define PAGE_STARTUP_PRINTF(fmt, ...)

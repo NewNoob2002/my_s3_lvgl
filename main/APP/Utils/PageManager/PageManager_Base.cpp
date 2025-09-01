@@ -318,3 +318,33 @@ const char* PageManager::GetPagePrevName()
 {
     return _PagePrev ? _PagePrev->_Name : PM_EMPTY_PAGE_NAME;
 }
+
+const char *PageManager::GetPageCurrentAnimName(LoadAnim_t anim)
+{
+    switch (anim)
+    {
+    case LOAD_ANIM_GLOBAL:
+        return "GLOBAL";
+    case LOAD_ANIM_OVER_LEFT:
+        return "OVER_LEFT";
+    case LOAD_ANIM_OVER_RIGHT:
+        return "OVER_RIGHT";
+    case LOAD_ANIM_OVER_TOP:
+        return "OVER_TOP";
+    case LOAD_ANIM_OVER_BOTTOM:
+        return "OVER_BOTTOM";
+    case LOAD_ANIM_MOVE_LEFT:
+        return "MOVE_LEFT";
+    case LOAD_ANIM_MOVE_RIGHT:
+        return "MOVE_RIGHT";
+    case LOAD_ANIM_MOVE_TOP:
+        return "MOVE_TOP";
+    case LOAD_ANIM_MOVE_BOTTOM:
+        return "MOVE_BOTTOM";
+    case LOAD_ANIM_FADE_ON:
+        return "FADE_ON";
+    case LOAD_ANIM_NONE:
+        return "NONE";
+    }
+    return "NONE";
+}
