@@ -6,7 +6,7 @@
  *      DEFINES
  *********************/
 #define SD_LETTER '/'
-
+#define SD_USE_SEM 0
 /**********************
  *      TYPEDEFS
  **********************/
@@ -94,6 +94,14 @@ static bool fs_ready(lv_fs_drv_t * drv)
  */
 static void * fs_open (lv_fs_drv_t * drv, const char * path, lv_fs_mode_t mode)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_open");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_OPEN);
+#endif
     oflag_t oflag = O_RDONLY;
 
     if(mode == LV_FS_MODE_WR)
@@ -113,15 +121,22 @@ static void * fs_open (lv_fs_drv_t * drv, const char * path, lv_fs_mode_t mode)
 
     if(file_p == NULL)
     {
+        LV_LOG_ERROR("file_p is NULL");
+#if SD_USE_SEM
+        xSemaphoreGive(sdCardSemaphore);
+#endif
         return NULL;
     }
 
     if(!file_p->open(path, oflag))
     {
+        LV_LOG_ERROR("file_p->open failed");
         delete file_p;
         file_p = NULL;
     }
-
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return file_p;
 }
 
@@ -134,9 +149,20 @@ static void * fs_open (lv_fs_drv_t * drv, const char * path, lv_fs_mode_t mode)
  */
 static lv_fs_res_t fs_close (lv_fs_drv_t * drv, void * file_p)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_close");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_CLOSE);
+#endif
     lv_fs_res_t res = LV_FS_RES_NOT_IMP;
     res = SD_FILE(file_p)->close() ? LV_FS_RES_OK : LV_FS_RES_FS_ERR;
     delete SD_FILE(file_p);
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return res;
 }
 
@@ -153,15 +179,29 @@ static lv_fs_res_t fs_close (lv_fs_drv_t * drv, void * file_p)
 
 static lv_fs_res_t fs_read (lv_fs_drv_t * drv, void * file_p, void * buf, uint32_t btr, uint32_t * br)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_read");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_READ);
+#endif
     int ret = SD_FILE(file_p)->read(buf, btr);
 
     if(ret < 0)
     {
+#if SD_USE_SEM
+        xSemaphoreGive(sdCardSemaphore);
+#endif
         return LV_FS_RES_FS_ERR;
     }
 
     *br = ret;
 
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return LV_FS_RES_OK;
 }
 
@@ -176,15 +216,29 @@ static lv_fs_res_t fs_read (lv_fs_drv_t * drv, void * file_p, void * buf, uint32
  */
 static lv_fs_res_t fs_write(lv_fs_drv_t * drv, void * file_p, const void * buf, uint32_t btw, uint32_t * bw)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_write");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_WRITE);
+#endif
     int ret = SD_FILE(file_p)->write((const uint8_t*)buf, btw);
 
     if(ret < 0)
     {
+#if SD_USE_SEM
+        xSemaphoreGive(sdCardSemaphore);
+#endif
         return LV_FS_RES_FS_ERR;
     }
 
     *bw = ret;
 
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return LV_FS_RES_OK;
 }
 
@@ -198,6 +252,14 @@ static lv_fs_res_t fs_write(lv_fs_drv_t * drv, void * file_p, const void * buf, 
  */
 static lv_fs_res_t fs_seek (lv_fs_drv_t * drv, void * file_p, uint32_t pos, lv_fs_whence_t whence)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_seek");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_SEEK);
+#endif
     if(whence == LV_FS_SEEK_SET)
     {
         SD_FILE(file_p)->seekSet(pos);
@@ -212,9 +274,15 @@ static lv_fs_res_t fs_seek (lv_fs_drv_t * drv, void * file_p, uint32_t pos, lv_f
     }
     else
     {
+#if SD_USE_SEM
+        xSemaphoreGive(sdCardSemaphore);
+#endif
         return LV_FS_RES_UNKNOWN;
     }
 
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return LV_FS_RES_OK;
 }
 
@@ -228,7 +296,18 @@ static lv_fs_res_t fs_seek (lv_fs_drv_t * drv, void * file_p, uint32_t pos, lv_f
  */
 static lv_fs_res_t fs_tell (lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_tell");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_TELL);
+#endif
     *pos_p = SD_FILE(file_p)->curPosition();
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return LV_FS_RES_OK;
 }
 
@@ -241,10 +320,21 @@ static lv_fs_res_t fs_tell (lv_fs_drv_t * drv, void * file_p, uint32_t * pos_p)
  */
 static void * fs_dir_open(lv_fs_drv_t * drv, const char * path)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_dir_open");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_DIR_OPEN);
+#endif
     rddir_t * dir_p = new rddir_t;
 
     if(dir_p == NULL)
     {
+#if SD_USE_SEM
+        xSemaphoreGive(sdCardSemaphore);
+#endif
         return NULL;
     }
 
@@ -253,7 +343,9 @@ static void * fs_dir_open(lv_fs_drv_t * drv, const char * path)
         delete dir_p;
         dir_p = NULL;
     }
-
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return dir_p;
 }
 
@@ -267,6 +359,14 @@ static void * fs_dir_open(lv_fs_drv_t * drv, const char * path)
  */
 static lv_fs_res_t fs_dir_read (lv_fs_drv_t * drv, void * dir_p, char *fn)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_dir_read");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_DIR_READ);
+#endif
     file_t file;
     char name[128];
 
@@ -292,9 +392,11 @@ static lv_fs_res_t fs_dir_read (lv_fs_drv_t * drv, void * dir_p, char *fn)
         {
             fn[0] = '\0';
         }
-    }
-    while(strcmp(fn, "/.") == 0 || strcmp(fn, "/..") == 0);
+    }while(strcmp(fn, "/.") == 0 || strcmp(fn, "/..") == 0);
 
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return LV_FS_RES_OK;
 }
 
@@ -306,7 +408,18 @@ static lv_fs_res_t fs_dir_read (lv_fs_drv_t * drv, void * dir_p, char *fn)
  */
 static lv_fs_res_t fs_dir_close (lv_fs_drv_t * drv, void * dir_p)
 {
+#if SD_USE_SEM
+    if (xSemaphoreTake(sdCardSemaphore, 10) != pdPASS)
+    {
+        LV_LOG_ERROR("sdCardSemaphore take failed in fs_dir_close");
+        return NULL;
+    }
+    markSemaphore(FUNCTION_LVGL_DIR_CLOSE);
+#endif
     lv_res_t res = SD_DIR(dir_p)->close() ? LV_FS_RES_OK : LV_FS_RES_FS_ERR;
     delete SD_DIR(dir_p);
+#if SD_USE_SEM
+    xSemaphoreGive(sdCardSemaphore);
+#endif
     return res;
 }

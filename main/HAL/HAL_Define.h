@@ -18,6 +18,14 @@ typedef enum
     FUNCTION_ENDLOGGING,
     FUNCTION_FINDLOG,
     FUNCTION_FILELIST,
+    FUNCTION_LVGL_OPEN,
+    FUNCTION_LVGL_CLOSE,
+    FUNCTION_LVGL_READ,
+    FUNCTION_LVGL_WRITE,
+    FUNCTION_LVGL_SEEK,
+    FUNCTION_LVGL_TELL,
+    FUNCTION_LVGL_DIR_OPEN,
+    FUNCTION_LVGL_DIR_CLOSE,
 } SemaphoreFunction;
 
 typedef struct SdCardStatus
@@ -51,7 +59,7 @@ typedef struct settings
 #define SD_FAT_TYPE 3
 extern SemaphoreHandle_t sdCardSemaphore;
 extern SdCardStatus SdStatus;
-
+void markSemaphore(SemaphoreFunction functionNumber);
 /*HAL_Display*/
 extern SemaphoreHandle_t lvglSemaphore;
 
