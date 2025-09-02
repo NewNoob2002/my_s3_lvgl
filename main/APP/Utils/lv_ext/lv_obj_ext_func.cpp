@@ -32,6 +32,21 @@ int16_t lv_obj_get_opa_scale(lv_obj_t* obj)
     return lv_obj_get_style_bg_opa(obj, LV_PART_MAIN);
 }
 
+void anim_set_x(void* obj, int32_t v) {
+    lv_obj_set_x((lv_obj_t*)obj, (lv_coord_t)v);
+}
+
+void anim_set_y(void* obj, int32_t v) {
+    lv_obj_set_y((lv_obj_t*)obj, (lv_coord_t)v);
+}
+
+void anim_set_width(void* obj, int32_t v) {
+    lv_obj_set_width((lv_obj_t*)obj, (lv_coord_t)v);
+}
+
+void anim_set_height(void* obj, int32_t v) {
+    lv_obj_set_height((lv_obj_t*)obj, (lv_coord_t)v);
+}
 /**
   * @brief  在label后追加字符串
   * @param  label:被追加的对象

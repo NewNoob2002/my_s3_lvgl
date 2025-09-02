@@ -333,7 +333,7 @@ int Account::Pull(Account* pub, void* data_p, uint32_t size)
         else
         {
             DC_LOG_ERROR(
-                "Data size pub[%s]:%d != sub[%s]:%d",
+                "Data size pub[%s]:%" PRIu32 " != sub[%s]:%" PRIu32,
                 pub->ID,
                 pub->priv.BufferSize,
                 this->ID,

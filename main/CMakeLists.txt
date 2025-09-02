@@ -2,7 +2,7 @@ set(MAIN_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 set(COMPONENT_ADD_INCLUDEDIRS
     ${MAIN_ROOT}/
-    ${MAIN_ROOT}/inc
+    ${MAIN_ROOT}/User
     ${MAIN_ROOT}/HAL
     ${MAIN_ROOT}/APP
     )

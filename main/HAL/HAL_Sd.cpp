@@ -26,7 +26,7 @@ SdCardStatus SdStatus;
 // time So we use a semaphore to see if the file system is available
 SemaphoreHandle_t sdCardSemaphore = nullptr;
 
-#define SD_FORMAT
+// #define SD_FORMAT
 #if defined(SD_FORMAT)
 // SdCardFactory constructs and initializes the appropriate card.
 SdCardFactory cardFactory;

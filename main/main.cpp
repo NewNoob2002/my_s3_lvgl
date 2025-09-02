@@ -8,6 +8,7 @@ void setup()
   lv_init();
   lv_port_init();
   App_Init();
+
 }
 
 void loop()
@@ -21,7 +22,7 @@ void loop()
 extern "C" void app_main(void)
 {
   setup();
-  xTaskCreatePinnedToCore(HAL::Display_Update, "lvgl", 10*1024, nullptr, 12, nullptr, 1);
-  
+  xTaskCreatePinnedToCore(HAL::Display_Update, "lvgl", 10 * 1024, nullptr, 12, nullptr, 1);
+
   loop();
 }

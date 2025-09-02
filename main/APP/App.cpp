@@ -22,7 +22,7 @@
 */
 // #include "Config/Config.h"
 #include "Common/DataProc/DataProc.h"
-// #include "Resource/ResourcePool.h"
+#include "Resource/ResourcePool.h"
 #include "Pages/AppFactory.h"
 #include "Pages/StatusBar/StatusBar.h"
 #include "Utils/PageManager/PageManager.h"
@@ -67,8 +67,8 @@ void App_Init()
 
     /* Initialize the data processing node */
     DataProc_Init();
-    ACCOUNT_SEND_CMD(Storage, STORAGE_CMD_LOAD);
-    ACCOUNT_SEND_CMD(SysConfig, SYSCONFIG_CMD_LOAD);
+    // ACCOUNT_SEND_CMD(Storage, STORAGE_CMD_LOAD);
+    // ACCOUNT_SEND_CMD(SysConfig, SYSCONFIG_CMD_LOAD);
 
     /* Set screen style */
     lv_obj_t* scr = lv_scr_act();
@@ -76,9 +76,7 @@ void App_Init()
     lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
     lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
-    lv_disp_t *dispp = lv_disp_get_default();
-    lv_theme_t *theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED), true, LV_FONT_DEFAULT);
-    lv_disp_set_theme(dispp, theme);
+    lv_disp_set_bg_color(lv_disp_get_default(), lv_color_black());
 
     /* Set root default style */
     static lv_style_t rootStyle;
@@ -90,7 +88,7 @@ void App_Init()
     manager.SetRootDefaultStyle(&rootStyle);
 
     /* Initialize resource pool */
-    // ResourcePool::Init();
+    ResourcePool::Init();
 
     /* Initialize status bar */
     Page::StatusBar_Create(lv_layer_top());

@@ -46,14 +46,15 @@ bool HAL::Display_Init()
 
 void HAL::Display_Update(void *e)
 {
+    uint32_t ms = 0;
     while (1)
     {
         if(xSemaphoreTake(lvglSemaphore, 10) == pdPASS)
         {
-            lv_timer_handler();
+            ms = lv_timer_handler();
             xSemaphoreGive(lvglSemaphore);
         }
-        vTaskDelay(5);
+        vTaskDelay(ms);
     }
 }
 

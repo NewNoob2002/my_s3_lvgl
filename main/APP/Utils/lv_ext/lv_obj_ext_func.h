@@ -26,10 +26,21 @@
 #include "lvgl/lvgl.h"
 
 #define LV_ANIM_TIME_DEFAULT    400
-#define LV_ANIM_EXEC(attr)      (lv_anim_exec_xcb_t)lv_obj_set_##attr
+#define LV_ANIM_EXEC_X   anim_set_x
+#define LV_ANIM_EXEC_Y   anim_set_y
+#define LV_ANIM_EXEC_WIDTH  anim_set_width
+#define LV_ANIM_EXEC_HEIGHT anim_set_height
+
+#define LV_ANIM_EXEC(attr)      (lv_anim_exec_xcb_t)anim_set_##attr
 
 void lv_obj_set_opa_scale(lv_obj_t* obj, int16_t opa);
 int16_t lv_obj_get_opa_scale(lv_obj_t* obj);
+
+void anim_set_x(void* obj, int32_t v);
+void anim_set_y(void* obj, int32_t v);
+void anim_set_width(void* obj, int32_t v);
+void anim_set_height(void* obj, int32_t v);
+
 void lv_label_set_text_add(lv_obj_t * label, const char * text);
 void lv_obj_add_anim(
     lv_obj_t * obj, lv_anim_t * a,

@@ -2,7 +2,7 @@
 #define __STARTUP_MODEL_H
 
 #include "Common/DataProc/DataProc.h"
-// #include "Common/HAL/HAL.h"
+#include "HAL.h"
 
 namespace Page
 {

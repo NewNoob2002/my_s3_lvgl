@@ -20,21 +20,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __DATA_CENTER_LOG_H
-#define __DATA_CENTER_LOG_H
+#ifndef __RESOURCE_MANAGER_H
+#define __RESOURCE_MANAGER_H
 
-#define DATA_CENTER_USE_LOG 1
+#include <vector>
 
-#if DATA_CENTER_USE_LOG
-#include <stdio.h>
-#  define _DC_LOG(format, ...)      printf("[DC]" format "\r\n", ##__VA_ARGS__)
-#  define DC_LOG_INFO(format, ...)  //_DC_LOG("[Info] "format, ##__VA_ARGS__)
-#  define DC_LOG_WARN(format, ...)  _DC_LOG("[Warn] " format, ##__VA_ARGS__)
-#  define DC_LOG_ERROR(format, ...) _DC_LOG("[Error] " format, ##__VA_ARGS__)
-#else
-#  define DC_LOG_INFO(...)
-#  define DC_LOG_WARN(...)
-#  define DC_LOG_ERROR(...)
-#endif
+class ResourceManager
+{
+
+public:
+    ResourceManager();
+    ~ResourceManager();
+
+    bool AddResource(const char* name, void* ptr);
+    bool RemoveResource(const char* name);
+    void* GetResource(const char* name);
+    void SetDefault(void* ptr);
+
+private:
+    typedef struct ResourceNode
+    {
+        const char* name;
+        void* ptr;
+
+        bool operator==(const struct ResourceNode n) const
+        {
+            return (this->name == n.name && this->ptr == n.ptr);
+        }
+    } ResourceNode_t;
+
+private:
+    std::vector<ResourceNode_t> NodePool;
+    void* DefaultPtr;
+    bool SearchNode(const char* name, ResourceNode_t* node);
+};
 
 #endif
