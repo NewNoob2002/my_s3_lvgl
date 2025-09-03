@@ -37,23 +37,50 @@ typedef struct SdCardStatus
     SemaphoreFunction semaphoreFunction = FUNCTION_NONE;
 } SdCardStatus;
 
-
 typedef struct present_device
 {
     bool microSd = false;
     bool display = false;
-}present_devices;
+} present_devices;
 
 typedef struct online_devices
 {
     bool microSd = false;
-}online_devices;
+} online_devices;
 
 typedef struct settings
 {
     bool enableSd = false;
-    uint8_t SdDivrerFrequency = 16; //Mhz
-}settings;
+    uint8_t SdDivrerFrequency = 16; // Mhz
+} settings;
+
+namespace HAL
+{
+    /* Clock */
+    typedef struct
+    {
+        uint16_t year;
+        uint8_t month;
+        uint8_t day;
+        uint8_t week;
+        uint8_t hour;
+        uint8_t minute;
+        uint8_t second;
+        uint16_t millisecond;
+    } Clock_Info_t;
+    /* GPS */
+    typedef struct
+    {
+        double longitude;
+        double latitude;
+        float altitude;
+        float course;
+        float speed;
+        int16_t satellites;
+        bool isVaild;
+        Clock_Info_t clock;
+    } GPS_Info_t;
+}
 
 /*HAL_Sd*/
 #define SD_FAT_TYPE 3

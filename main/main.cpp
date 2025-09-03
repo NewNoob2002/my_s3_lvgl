@@ -25,6 +25,7 @@ void loop()
 extern "C" void app_main(void)
 {
   setup();
-  xTaskCreatePinnedToCore(HAL::Display_Update, "lvgl", 10 * 1024, nullptr, 12, nullptr, 1);
+  xTaskCreatePinnedToCore(HAL::GPS_Update, "gnssUpdate", 6 * 1024, nullptr, 1, nullptr, 1);
+  xTaskCreatePinnedToCore(HAL::Display_Update, "lvglTask", 10 * 1024, nullptr, 1, nullptr, 1);
   loop();
 }

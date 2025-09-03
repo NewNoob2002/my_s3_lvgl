@@ -34,11 +34,10 @@
 // #define CONFIG_BUZZ_PIN             PA0  // TIM2
 
 /* GPS */
-#define CONFIG_GPS_SERIAL           Serial2
 #define CONFIG_GPS_USE_TRANSPARENT  0
 #define CONFIG_GPS_BUF_OVERLOAD_CHK 0
-// #define CONFIG_GPS_TX_PIN           PA3
-// #define CONFIG_GPS_RX_PIN           PA2
+#define CONFIG_GPS_TX_PIN           5
+#define CONFIG_GPS_RX_PIN           4
 
 /* IMU */
 // #define CONFIG_IMU_INT1_PIN         PB10

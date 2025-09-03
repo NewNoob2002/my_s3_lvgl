@@ -28,5 +28,7 @@ void HAL::Init()
     HAL::SD_Init();
     HAL::Backlight_Init();
     HAL::Encoder_Init();
+    HAL::GPS_Init();
+    
     HAL::Display_Init();
 }
