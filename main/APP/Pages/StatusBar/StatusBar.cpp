@@ -25,8 +25,8 @@
 #include "Common/DataProc/DataProc.h"
 #include "Utils/lv_anim_label/lv_anim_label.h"
 
-#define BATT_USAGE_HEIGHT (lv_obj_get_style_height(ui.battery.img, 0) - 6)
-#define BATT_USAGE_WIDTH  (lv_obj_get_style_width(ui.battery.img, 0) - 4)
+#define BATT_USAGE_HEIGHT (lv_obj_get_style_height(ui.battery.icon, 0) - 6)
+#define BATT_USAGE_WIDTH  (lv_obj_get_style_width(ui.battery.icon, 0) - 4)
 
 #define STATUS_BAR_HEIGHT 25
 
@@ -52,7 +52,7 @@ struct
 
     struct
     {
-        lv_obj_t* img;
+        lv_obj_t* icon;
         lv_obj_t* objUsage;
         lv_obj_t* label;
     } battery;
@@ -147,11 +147,11 @@ static void StatusBar_Update(lv_timer_t* timer)
     //     lv_label_set_text_fmt(ui.satellite.label, "%d", gps.satellites);
     // }
 
-    DataProc::Storage_Basic_Info_t sdInfo;
-    if(actStatusBar->Pull("Storage", &sdInfo, sizeof(sdInfo)) == Account::RES_OK)
-    {
-        sdInfo.isDetect ? lv_obj_clear_state(ui.imgSD, LV_STATE_DISABLED) : lv_obj_add_state(ui.imgSD, LV_STATE_DISABLED);
-    }
+    // DataProc::Storage_Basic_Info_t sdInfo;
+    // if(actStatusBar->Pull("Storage", &sdInfo, sizeof(sdInfo)) == Account::RES_OK)
+    // {
+    //     sdInfo.isDetect ? lv_obj_clear_state(ui.imgSD, LV_STATE_DISABLED) : lv_obj_add_state(ui.imgSD, LV_STATE_DISABLED);
+    // }
 
     // /* clock */
     // HAL::Clock_Info_t clock;
@@ -276,10 +276,10 @@ lv_obj_t* Page::StatusBar_Create(lv_obj_t* par)
     StatusBar_StyleInit(cont);
     ui.cont = cont;
 
-    // static lv_style_t style_label;
-    // lv_style_init(&style_label);
-    // lv_style_set_text_color(&style_label, lv_color_white());
-    // //lv_style_set_text_font(&style_label, ResourcePool::GetFont("bahnschrift_17"));
+    static lv_style_t style_label;
+    lv_style_init(&style_label);
+    lv_style_set_text_color(&style_label, lv_color_white());
+    lv_style_set_text_font(&style_label, ResourcePool::GetFont("bahnschrift_13"));
 
     // /* satellite */
     // lv_obj_t* img = lv_img_create(cont);
@@ -312,24 +312,22 @@ lv_obj_t* Page::StatusBar_Create(lv_obj_t* par)
     lv_obj_set_style_text_font(icon_battery, &lv_font_montserrat_14, 0);
     lv_obj_set_style_text_color(icon_battery, lv_palette_main(LV_PALETTE_RED), 0);
     lv_obj_align(icon_battery, LV_ALIGN_RIGHT_MID, -35, 0);
-    // lv_img_t* img_ext = (lv_img_t*)img;
-    // lv_obj_set_size(img, img_ext->w, img_ext->h);
-    // ui.battery.img = img;
+    ui.battery.icon = icon_battery;
 
-    // lv_obj_t* obj = lv_obj_create(img);
-    // lv_obj_remove_style_all(obj);
-    // lv_obj_set_style_bg_color(obj, lv_color_white(), 0);
-    // lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    // lv_obj_set_style_opa(obj, LV_OPA_COVER, 0);
-    // lv_obj_set_size(obj, BATT_USAGE_WIDTH, BATT_USAGE_HEIGHT);
-    // lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, -2);
-    // ui.battery.objUsage = obj;
+    lv_obj_t* obj = lv_obj_create(icon_battery);
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_style_bg_color(obj, lv_color_white(), 0);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_style_opa(obj, LV_OPA_COVER, 0);
+    lv_obj_set_size(obj, BATT_USAGE_WIDTH, BATT_USAGE_HEIGHT);
+    lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, -2);
+    ui.battery.objUsage = obj;
 
-    // label = lv_label_create(cont);
-    // lv_obj_add_style(label, &style_label, 0);
-    // lv_obj_align_to(label, ui.battery.img, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
-    // lv_label_set_text(label, "100%");
-    // ui.battery.label = label;
+    lv_obj_t* label = lv_label_create(cont);
+    lv_obj_add_style(label, &style_label, 0);
+    lv_obj_align_to(label, ui.battery.icon, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+    lv_label_set_text(label, "100%");
+    ui.battery.label = label;
 
     StatusBar_SetStyle(DataProc::STATUS_BAR_STYLE_TRANSP);
 

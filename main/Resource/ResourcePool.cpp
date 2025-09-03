@@ -24,8 +24,7 @@ do{\
         IMPORT_FONT(bahnschrift_17);
         IMPORT_FONT(bahnschrift_32);
         IMPORT_FONT(bahnschrift_65);
-        IMPORT_FONT(agencyb_36);
-
+        IMPORT_FONT(bungee_28);
         /* Import Images */
         // IMPORT_IMG(alarm);
         // IMPORT_IMG(battery);

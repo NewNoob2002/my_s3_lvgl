@@ -96,7 +96,7 @@ void App_Init()
     /* Initialize pages */
     // manager.Install("Template",    "Pages/_Template");
     // manager.Install("LiveMap",     "Pages/LiveMap");
-    // manager.Install("Dialplate",   "Pages/Dialplate");
+    manager.Install("Dialplate",   "Pages/Dialplate");
     // manager.Install("SystemInfos", "Pages/SystemInfos");
     manager.Install("Startup",     "Pages/Startup");
 

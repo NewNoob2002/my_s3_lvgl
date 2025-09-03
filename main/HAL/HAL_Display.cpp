@@ -26,17 +26,13 @@ SemaphoreHandle_t lvglSemaphore = nullptr;
 
 bool HAL::Display_Init()
 {
-    if (!gfx->begin(30 * 1000 * 1000))
+    if (!gfx->begin(40 * 1000 * 1000))
     {
         Serial.println("gfx->begin() failed!");
         return false;
     }
     gfx->setRotation(0);
     gfx->fillScreen(BLACK);
-#ifdef CONFIG_SCREEN_BLK_PIN
-    pinMode(CONFIG_SCREEN_BLK_PIN, OUTPUT);
-    digitalWrite(CONFIG_SCREEN_BLK_PIN, HIGH);
-#endif
     if(!lvglSemaphore)
     {
         lvglSemaphore = xSemaphoreCreateMutex();
@@ -75,3 +71,64 @@ int16_t HAL::Display_GetHeight()
 {
     return gfx->height();
 }
+
+
+/**
+  * @brief  改变亮度，使用lv_anim函数
+  * @param  obj:无用
+  * @param  brightness:亮度值
+  * @retval None
+  */
+ static void Backlight_AnimCallback(void * obj, int32_t brightness)
+ {
+     HAL::Backlight_SetValue(brightness);
+ }
+
+void HAL::Backlight_Init()
+{
+#ifdef CONFIG_SCREEN_BLK_PIN
+    ledcAttach(CONFIG_SCREEN_BLK_PIN, 20000, 10);
+    ledcWrite(CONFIG_SCREEN_BLK_PIN, 0);
+#endif
+}
+
+/**
+  * @brief  设置亮度，渐变效果
+  * @param  target:目标亮度(0~1023 -> 0~100%)
+  * @retval 无
+  */
+ void HAL::Backlight_SetGradual(uint16_t target, uint16_t time)
+ {
+     lv_anim_t a;
+     lv_anim_init(&a);
+     lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)Backlight_AnimCallback);
+     lv_anim_set_values(&a, Backlight_GetBrightness(), target);
+     lv_anim_set_time(&a, time);
+     lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+ 
+     lv_anim_start(&a);
+ }
+
+ /**
+  * @brief  获取亮度
+  * @param  ～
+  * @retval 当前亮度(0~1023 -> 0~100%)
+  */
+uint16_t HAL::Backlight_GetBrightness()
+{
+    return ledcRead(CONFIG_SCREEN_BLK_PIN);
+}
+
+/**
+  * @brief  Set brightness
+  * @param  val: Brightness(0~1023)
+  * @retval None
+  */
+ void HAL::Backlight_SetValue(int16_t val)
+ {
+    if(val > 1023)
+    {
+        val = 1023;
+    }
+    ledcWrite(CONFIG_SCREEN_BLK_PIN, val);
+ }

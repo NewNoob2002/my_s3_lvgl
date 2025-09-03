@@ -7,6 +7,8 @@ void setup()
   HAL::Init();
   lv_init();
   lv_port_init();
+  HAL::Backlight_SetGradual(1023, 1000);
+
   App_Init();
 
 }

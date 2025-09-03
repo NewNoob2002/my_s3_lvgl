@@ -47,12 +47,16 @@ void anim_set_width(void* obj, int32_t v) {
 void anim_set_height(void* obj, int32_t v) {
     lv_obj_set_height((lv_obj_t*)obj, (lv_coord_t)v);
 }
+void anim_set_opa_scale(void *obj, int32_t v)
+{
+    lv_obj_set_style_bg_opa((lv_obj_t*)obj, (lv_opa_t)v, LV_PART_MAIN);
+}
 /**
-  * @brief  在label后追加字符串
-  * @param  label:被追加的对象
-  * @param  text:追加的字符串
-  * @retval 无
-  */
+ * @brief  在label后追加字符串
+ * @param  label:被追加的对象
+ * @param  text:追加的字符串
+ * @retval 无
+ */
 void lv_label_set_text_add(lv_obj_t * label, const char * text)
 {
     if(!label)

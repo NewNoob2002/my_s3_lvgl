@@ -4,7 +4,7 @@ using namespace Page;
 
 void StartupModel::Init()
 {
-    account = new Account("StartupModel", DataProc::Center(), 0, this);
+    account = new Account("Startup", DataProc::Center(), 0, this);
     // account->Subscribe("MusicPlayer");
     account->Subscribe("StatusBar");
 }
@@ -20,7 +20,6 @@ void StartupModel::Deinit()
 
 void StartupModel::PlayMusic(const char* music)
 {
-    printf("PlayMusic: %s\n", music);
     // DataProc::MusicPlayer_Info_t info;
     // DATA_PROC_INIT_STRUCT(info);
     // info.music = music;

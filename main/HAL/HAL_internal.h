@@ -22,6 +22,12 @@ namespace HAL
     int16_t Display_GetWidth();
     int16_t Display_GetHeight();
 
+    /*Backlight*/
+    void Backlight_Init();
+    void Backlight_SetGradual(uint16_t target, uint16_t time);
+    uint16_t Backlight_GetBrightness();
+    void Backlight_SetValue(int16_t val);
+
     /*SD*/
     bool SD_Init();
 }

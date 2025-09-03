@@ -63,7 +63,7 @@ Account::Account(
         uint8_t* buf1 = buffer + bufSize;
 
         PingPongBuffer_Init(&priv.BufferManager, buf0, buf1);
-        DC_LOG_INFO("Account[%s] cached %d x2 bytes", ID, bufSize);
+        DC_LOG_INFO("Account[%s] cached %" PRIu32 " x2 bytes", ID, bufSize);
         priv.BufferSize = bufSize;
     }
 
@@ -199,7 +199,7 @@ bool Account::Commit(const void* data_p, uint32_t size)
 
     PingPongBuffer_SetWriteDone(&priv.BufferManager);
 
-    DC_LOG_INFO("pub[%s] commit data(0x%p)[%d] >> data(0x%p)[%d] done",
+    DC_LOG_INFO("pub[%s] commit data(0x%p)[%" PRIu32 "] >> data(0x%p)[%" PRIu32 "] done",
                 ID, data_p, size, wBuf, size);
 
     return true;
@@ -240,7 +240,7 @@ int Account::Publish()
         Account* sub = iter;
         EventCallback_t callback = sub->priv.eventCallback;
 
-        DC_LOG_INFO("pub[%s] publish >> data(0x%p)[%d] >> sub[%s]...",
+        DC_LOG_INFO("pub[%s] publish >> data(0x%p)[%" PRIu32 "] >> sub[%s]...",
                     ID, param.data_p, param.size, sub->ID);
 
         if (callback != nullptr)
@@ -291,7 +291,7 @@ int Account::Pull(Account* pub, void* data_p, uint32_t size)
         return RES_NOT_FOUND;
     }
 
-    DC_LOG_INFO("sub[%s] pull << data(0x%p)[%d] << pub[%s] ...",
+    DC_LOG_INFO("sub[%s] pull << data(0x%p)[%" PRIu32 "] << pub[%s] ...",
                 ID, data_p, size, pub->ID);
 
     EventCallback_t callback = pub->priv.eventCallback;
@@ -360,6 +360,7 @@ int Account::Notify(const char* pubID, const void* data_p, uint32_t size)
         DC_LOG_ERROR("sub[%s] was not subscribe pub[%s]", ID, pubID);
         return RES_NOT_FOUND;
     }
+    DC_LOG_INFO("find pub[%s]", pub->ID);
     return Notify(pub, data_p, size);
 }
 
@@ -379,7 +380,7 @@ int Account::Notify(Account* pub, const void* data_p, uint32_t size)
         return RES_NOT_FOUND;
     }
 
-    DC_LOG_INFO("sub[%s] notify >> data(0x%p)[%d] >> pub[%s] ...",
+    DC_LOG_INFO("sub[%s] notify >> data(0x%p)[%" PRIu32 "] >> pub[%s] ...",
                 ID, data_p, size, pub->ID);
 
     EventCallback_t callback = pub->priv.eventCallback;

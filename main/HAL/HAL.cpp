@@ -26,5 +26,6 @@ void HAL::Init()
     checkDevices();
     Serial.begin(115200);
     HAL::SD_Init();
+    HAL::Backlight_Init();
     HAL::Display_Init();
 }

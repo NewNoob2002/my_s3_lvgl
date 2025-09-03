@@ -24,8 +24,8 @@ void lv_port_disp_init(void)
     // static lv_color_t lv_disp_buf2[SCREEN_BUFFER_SIZE];
     // lv_color_t *disp_draw_buf = (lv_color_t *)malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t));
     // lv_color_t *disp_draw_buf2 = (lv_color_t *)malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t));
-    lv_color_t *disp_draw_buf = (lv_color_t *)heap_caps_malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
-    lv_color_t *disp_draw_buf2 = (lv_color_t *)heap_caps_malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA |MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+    lv_color_t *disp_draw_buf = (lv_color_t *)heap_caps_malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA  | MALLOC_CAP_SPIRAM);
+    lv_color_t *disp_draw_buf2 = (lv_color_t *)heap_caps_malloc(SCREEN_BUFFER_SIZE * sizeof(lv_color_t), MALLOC_CAP_DMA | MALLOC_CAP_SPIRAM);
     lv_disp_draw_buf_init(&draw_buf, disp_draw_buf, disp_draw_buf2, SCREEN_BUFFER_SIZE);
 
     /* Initialize the display */

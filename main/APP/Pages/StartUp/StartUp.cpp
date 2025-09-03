@@ -2,7 +2,7 @@
 
 using namespace Page;
 
-Startup::Startup():StartupTimer(nullptr)
+Startup::Startup()
 {
 }
 
@@ -24,7 +24,7 @@ void Startup::onViewLoad()
     Model.Init();
     Model.SetEncoderEnable(false);
     View.Create(_root);
-    StartupTimer = lv_timer_create(onTimer, 1000, this);
+    lv_timer_t* StartupTimer = lv_timer_create(onTimer, 2000, this);
     lv_timer_set_repeat_count(StartupTimer, 1);
 }
 
@@ -49,9 +49,6 @@ void Startup::onViewDidAppear()
 void Startup::onViewWillDisappear()
 {
     PAGE_STARTUP_PRINTF("onViewWillDisappear");
-    lv_timer_pause(StartupTimer);
-    lv_timer_del(StartupTimer);
-    StartupTimer = nullptr;
 }
 
 void Startup::onViewDidDisappear()
@@ -76,7 +73,7 @@ void Startup::onViewDidUnload()
 void Startup::onTimer(lv_timer_t* timer)
 {
     Startup* instance = (Startup*)timer->user_data;
-    // instance->_Manager->Replace("Pages/Dialplate");
+    instance->_Manager->Replace("Pages/Dialplate");
 }
 
 void Startup::onEvent(lv_event_t* event)

@@ -5,7 +5,7 @@
 #include "StartUpModel.h"
 
 #if PAGE_DEBUG
-#define PAGE_STARTUP_PRINTF(fmt, ...) printf("Startup::" fmt "\n", ##__VA_ARGS__)
+#define PAGE_STARTUP_PRINTF(fmt, ...) printf("[Startup]::" fmt "\n", ##__VA_ARGS__)
 #else
 #define PAGE_STARTUP_PRINTF(fmt, ...)
 #endif
@@ -38,8 +38,6 @@ private:
 private:
     StartupView View;
     StartupModel Model;
-
-    lv_timer_t* StartupTimer;
 };
 
 }

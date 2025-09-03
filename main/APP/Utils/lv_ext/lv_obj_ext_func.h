@@ -40,6 +40,7 @@ void anim_set_x(void* obj, int32_t v);
 void anim_set_y(void* obj, int32_t v);
 void anim_set_width(void* obj, int32_t v);
 void anim_set_height(void* obj, int32_t v);
+void anim_set_opa_scale(void* obj, int32_t v);
 
 void lv_label_set_text_add(lv_obj_t * label, const char * text);
 void lv_obj_add_anim(

@@ -24,10 +24,10 @@
 #define __VERSION_H
 
 /* Firmware Version */
-#define VERSION_FIRMWARE_NAME   "SingularXYZ"
+#define VERSION_FIRMWARE_NAME   "X-GNSS"
 #define VERSION_SOFTWARE        "v1.0"
 #define VERSION_HARDWARE        "v1.0"
-#define VERSION_AUTHOR_NAME     "SingularXYZ"
+#define VERSION_AUTHOR_NAME     "guotianci"
 
 /* Number to string macro */
 #define _VERSION_NUM_TO_STR_(n)  #n
