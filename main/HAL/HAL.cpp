@@ -27,5 +27,6 @@ void HAL::Init()
     Serial.begin(115200);
     HAL::SD_Init();
     HAL::Backlight_Init();
+    HAL::Encoder_Init();
     HAL::Display_Init();
 }

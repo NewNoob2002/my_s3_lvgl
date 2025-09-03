@@ -81,8 +81,8 @@ void DialplateView::BottomInfo_Create(lv_obj_t* par)
     lv_obj_t* cont = lv_obj_create(par);
     lv_obj_remove_style_all(cont);
     lv_obj_set_style_bg_color(cont, lv_color_black(), 0);
-    lv_obj_set_size(cont, LV_HOR_RES, 90);
-    lv_obj_align(cont, LV_ALIGN_TOP_MID, 0, 106);
+    lv_obj_set_size(cont, LV_HOR_RES, 135);
+    lv_obj_align(cont, LV_ALIGN_TOP_MID, 0, 142);
 
     lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
 
@@ -146,7 +146,7 @@ void DialplateView::BtnCont_Create(lv_obj_t* par)
     lv_obj_t* cont = lv_obj_create(par);
     lv_obj_remove_style_all(cont);
     lv_obj_set_size(cont, LV_HOR_RES, 40);
-    lv_obj_align_to(cont, ui.bottomInfo.cont, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    lv_obj_align(cont, LV_ALIGN_BOTTOM_MID, 0, 0);
 
     /*lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_place(
@@ -158,9 +158,9 @@ void DialplateView::BtnCont_Create(lv_obj_t* par)
 
     ui.btnCont.cont = cont;
 
-    ui.btnCont.btnMap = Btn_Create(cont, ResourcePool::GetImage("locate"), -80);
+    ui.btnCont.btnMap = Btn_Create(cont, ResourcePool::GetImage("locate"), -55);
     ui.btnCont.btnRec = Btn_Create(cont, ResourcePool::GetImage("start"), 0);
-    ui.btnCont.btnMenu = Btn_Create(cont, ResourcePool::GetImage("menu"), 80);
+    ui.btnCont.btnMenu = Btn_Create(cont, ResourcePool::GetImage("menu"), 55);
 }
 
 lv_obj_t* DialplateView::Btn_Create(lv_obj_t* par, const void* img_src, lv_coord_t x_ofs)

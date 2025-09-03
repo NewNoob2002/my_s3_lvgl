@@ -30,6 +30,12 @@ namespace HAL
 
     /*SD*/
     bool SD_Init();
+
+    /*Encoder*/
+    void Encoder_Init();
+    void Encoder_Update(void *e);
+    int32_t Encoder_GetDiff();
+    bool Encoder_GetIsPush();
 }
 
 void print_heap_info(bool force_print);

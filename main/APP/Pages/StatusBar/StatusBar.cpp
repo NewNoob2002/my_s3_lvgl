@@ -55,6 +55,8 @@ struct
         lv_obj_t* icon;
         lv_obj_t* objUsage;
         lv_obj_t* label;
+
+        lv_style_t style;
     } battery;
 } ui;
 
@@ -174,6 +176,8 @@ static void StatusBar_Update(lv_timer_t* timer)
     {
         if(!Is_BattChargingAnimActive)
         {
+            lv_style_set_bg_color(&ui.battery.style, lv_palette_main(LV_PALETTE_GREEN));
+            lv_style_set_text_color(&ui.battery.style, lv_palette_main(LV_PALETTE_GREEN));
             StatusBar_AnimCreate(contBatt);
             Is_BattChargingAnimActive = true;
         }
@@ -307,20 +311,23 @@ lv_obj_t* Page::StatusBar_Create(lv_obj_t* par)
     // ui.labelRec = StatusBar_RecAnimLabelCreate(cont);
 
     // /* battery */
-    lv_obj_t * icon_battery = lv_label_create(cont);
-    lv_label_set_text(icon_battery, LV_SYMBOL_BATTERY_EMPTY);
-    lv_obj_set_style_text_font(icon_battery, &lv_font_montserrat_14, 0);
-    lv_obj_set_style_text_color(icon_battery, lv_palette_main(LV_PALETTE_RED), 0);
+    lv_style_init(&ui.battery.style);
+
+    lv_obj_t* icon_battery = lv_img_create(cont);
+    lv_img_set_src(icon_battery, ResourcePool::GetImage("battery"));
     lv_obj_align(icon_battery, LV_ALIGN_RIGHT_MID, -35, 0);
+    lv_img_t* img_ext = (lv_img_t*)icon_battery;
+    lv_obj_set_size(icon_battery, img_ext->w, img_ext->h);
+    lv_obj_add_style(icon_battery, &ui.battery.style, 0);
     ui.battery.icon = icon_battery;
 
     lv_obj_t* obj = lv_obj_create(icon_battery);
     lv_obj_remove_style_all(obj);
-    lv_obj_set_style_bg_color(obj, lv_color_white(), 0);
     lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
     lv_obj_set_style_opa(obj, LV_OPA_COVER, 0);
     lv_obj_set_size(obj, BATT_USAGE_WIDTH, BATT_USAGE_HEIGHT);
     lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, -2);
+    lv_obj_add_style(obj, &ui.battery.style, 0);
     ui.battery.objUsage = obj;
 
     lv_obj_t* label = lv_label_create(cont);
@@ -331,8 +338,8 @@ lv_obj_t* Page::StatusBar_Create(lv_obj_t* par)
 
     StatusBar_SetStyle(DataProc::STATUS_BAR_STYLE_TRANSP);
 
-    // lv_timer_t* timer = lv_timer_create(StatusBar_Update, 1000, nullptr);
-    // lv_timer_ready(timer);
+    lv_timer_t* timer = lv_timer_create(StatusBar_Update, 1000, nullptr);
+    lv_timer_ready(timer);
 
     return ui.cont;
 }

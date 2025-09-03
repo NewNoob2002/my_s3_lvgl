@@ -4,7 +4,7 @@ using namespace Page;
 
 void StartupModel::Init()
 {
-    account = new Account("Startup", DataProc::Center(), 0, this);
+    account = new Account("StartupModel", DataProc::Center(), 0, this);
     // account->Subscribe("MusicPlayer");
     account->Subscribe("StatusBar");
 }
