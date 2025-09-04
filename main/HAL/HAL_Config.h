@@ -48,9 +48,9 @@
 // #define CONFIG_MCU_SDL_PIN          PB6
 
 /* Encoder */
-// #define CONFIG_ENCODER_B_PIN        PB5
-// #define CONFIG_ENCODER_A_PIN        PB4
-// #define CONFIG_ENCODER_PUSH_PIN     PB3
+#define CONFIG_ENCODER_B_PIN        47
+#define CONFIG_ENCODER_A_PIN        48
+#define CONFIG_ENCODER_PUSH_PIN     21
 
 /* Power */
 // #define CONFIG_POWER_EN_PIN         PA12

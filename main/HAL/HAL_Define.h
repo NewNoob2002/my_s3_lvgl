@@ -79,6 +79,7 @@ namespace HAL
         int16_t satellites;
         bool isVaild;
         Clock_Info_t clock;
+        char firmwareVersion[16];
     } GPS_Info_t;
 }
 

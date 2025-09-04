@@ -300,9 +300,6 @@ void beginSdCard()
     else
       SdStatus.outOfSDSpace = false;
 
-    log_i("\nSD init success. Card size: %d MB, Free space: %d MB",
-          SdStatus.sdCardSizeMb, SdStatus.sdFreeSpaceMb);
-
     online.microSd = true;
     break;
   }

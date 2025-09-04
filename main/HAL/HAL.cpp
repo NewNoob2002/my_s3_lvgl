@@ -24,7 +24,6 @@ void print_heap_info(bool force_print) {
 void HAL::Init()
 {
     checkDevices();
-    Serial.begin(115200);
     HAL::SD_Init();
     HAL::Backlight_Init();
     HAL::Encoder_Init();

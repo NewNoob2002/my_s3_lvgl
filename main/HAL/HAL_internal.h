@@ -36,6 +36,11 @@ namespace HAL
     void Encoder_Update(void *e);
     int32_t Encoder_GetDiff();
     bool Encoder_GetIsPush();
+    void Encoder_SetEnable(bool en);
+    uint32_t Encoder_GetEventCount();
+    uint32_t Encoder_GetLastEventTime();
+    uint8_t Encoder_GetCurrentState();
+    uint8_t Encoder_GetPreviousState();
 
     /*GPS*/
     void GPS_Init();

@@ -18,69 +18,45 @@ const char *const rtkParserNames[] = {
 };
 const int rtkParserNameCount = sizeof(rtkParserNames) / sizeof(rtkParserNames[0]);
 
+
+void GPS_HotStart()
+{
+    gnssSerial->println("$PCAS10,0*1C");
+}
+
+void GPS_WarmStart()
+{
+    gnssSerial->println("$PCAS10,1*1D");
+}
+
+void GPS_ColdStart()
+{
+    gnssSerial->println("$PCAS10,2*1E");
+}
+
+void GPS_Freset()
+{
+    gnssSerial->println("$PCAS10,3*1F");
+}
+
 void processUart1Message(SEMP_PARSE_STATE *parse, uint16_t type)
 {
-    char *responsePointer = strstr((char *)parse->buffer, "GNGGA");
-    static uint8_t field_count = 0;
-    if (responsePointer != nullptr) // Found
+    String nema = String((char *)parse->buffer);
+    if(nema.indexOf("GPTXT") != -1)
     {
-        char *ptr = (char*)parse->buffer;
-        while (*ptr)
-        {
-            char *field_start = ptr;
-
-            // 查找字段结束位置
-            while (*ptr && *ptr != ',' && *ptr != '*')
-                ptr++;
-
-            int field_len = ptr - field_start;
-            field_count++;
-            char buf[32];
-            // 提取目标字段
-            switch (field_count)
-            {
-            case 2: // UTC 时间 (HHMMSS.sss)
-                strncpy(buf, field_start, field_len);
-                break;
-
-            case 3: // 纬度 (DDMM.mmmm)
-                // strncpy(latitude, field_start, field_len < 15 ? field_len : 15);
-                // latitude[field_len < 15 ? field_len : 15] = '\0';
-                // gpsInfo.latitude = atof(latitude);
-                break;
-
-            case 4: // 纬度方向 (N/S)
-                if (field_len > 0)
-                    // lat_dir = *field_start;
-                break;
-
-            case 5: // 经度 (DDDMM.mmmm)
-                // strncpy(longitude, field_start, field_len < 15 ? field_len : 15);
-                // longitude[field_len < 15 ? field_len : 15] = '\0';
-                break;
-
-            case 6: // 经度方向 (E/W)
-                // if (field_len > 0)
-                //     lon_dir = *field_start;
-                break;
-
-            case 8: // 卫星数量
-                // numSv = atoi(field_start);
-                // // 提前终止（已获取所有目标字段）
-                // ptr = strchr(ptr, '\0'); // 跳到字符串结尾
-                break;
-            }
-
-            if (*ptr == ',')
-                ptr++; // 跳过逗号
-            if (*ptr == '*')
-                break; // 遇到校验和结束
-        }
-
-        // Reset field count for next message
-        field_count = 0;
+        strcpy(gpsInfo.firmwareVersion, nema.substring(nema.indexOf("V"), nema.indexOf("*")).c_str());
     }
+    // else if(nema.indexOf("GNGGA") != -1)
+    // {
+    //     printf("%s\n", nema.c_str());
+    // }
+    // else if(nema.indexOf("GNGSA") != -1)
+    // {
+    //     printf("%s\n", nema.c_str());
+    // }
 }
+
+
 void HAL::GPS_Init()
 {
     // Initialize the main parser
@@ -89,7 +65,8 @@ void HAL::GPS_Init()
                                0,                   // Scratchpad bytes
                                1024 * 6,            // Buffer length
                                processUart1Message, // eom Call Back
-                               "rtkParse");         // Parser Name
+                               "rtkParse"         // Parser Name
+                               );
     if (!rtkParse)
     {
         log_e("Failed to initialize the RTK parser");
@@ -101,12 +78,33 @@ void HAL::GPS_Init()
 
     gnssSerial->begin(9600, SERIAL_8N1, CONFIG_GPS_RX_PIN, CONFIG_GPS_TX_PIN);
     gnssSerial->setTimeout(2);
+    gnssSerial->println("$PCAS01,5*19"); // Set the baud rate to 115200
+    delay(100);
+    gnssSerial->updateBaudRate(115200);
+    gnssSerial->println("$PCAS03,0,0,0,0,0,0,0,0,0,0,,,0,0*02"); // Disable all messages
+    gnssSerial->println("$PCAS06,0*1B"); // query for firmware version
+    delay(100);
+    while (gnssSerial->available())
+    {
+        uint8_t buffer[128];
+        int bytesIncoming = gnssSerial->readBytes(buffer, sizeof(buffer));
+        for (int x = 0; x < bytesIncoming; x++)
+        {
+            sempParseNextByte(rtkParse, buffer[x]);
+        }
+    }
+    gnssSerial->println("$PCAS03,1,0,3,2,1,0,1,0,0,0,,,1,1*02"); // GPGGA 1, GPGSA 3, GPGSV 2, GPRMC 1, GPZDA 1
 }
 
 void HAL::GPS_Update(void *e)
 {
     while (true)
     {
+        if (!rtkParse)
+        {
+            log_e("Failed to initialize the RTK parser");
+            return;
+        }
         if (gnssSerial->available())
         {
             uint8_t GPRS_RX_BUFF[512];
