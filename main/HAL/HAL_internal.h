@@ -46,6 +46,11 @@ namespace HAL
     void GPS_Init();
     void GPS_Update(void *e);
     void GPS_GetInfo(GPS_Info_t *info);
+
+    /*Clock*/
+    void Clock_Init();
+    void Clock_SetInfo(const Clock_Info_t* info);
+    void Clock_GetInfo(Clock_Info_t *info);
 }
 
 void print_heap_info(bool force_print);

@@ -84,7 +84,7 @@ void DialplateView::BottomInfo_Create(lv_obj_t* par)
     lv_obj_set_size(cont, LV_HOR_RES, 135);
     lv_obj_align(cont, LV_ALIGN_TOP_MID, 0, 142);
 
-    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_ROW_WRAP);
+    lv_obj_set_flex_flow(cont, LV_FLEX_FLOW_COLUMN_WRAP);
 
     lv_obj_set_flex_align(
         cont,
@@ -178,7 +178,7 @@ lv_obj_t* DialplateView::Btn_Create(lv_obj_t* par, const void* img_src, lv_coord
     lv_obj_set_style_height(obj, 25, LV_STATE_PRESSED);
     lv_obj_set_style_bg_color(obj, lv_color_hex(0x666666), 0);
     lv_obj_set_style_bg_color(obj, lv_color_hex(0xbbbbbb), LV_STATE_PRESSED);
-    lv_obj_set_style_bg_color(obj, lv_color_hex(0xff931e), LV_STATE_FOCUSED);
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0xffeb3b), LV_STATE_FOCUSED);
     lv_obj_set_style_radius(obj, 9, 0);
 
     static lv_style_transition_dsc_t tran;

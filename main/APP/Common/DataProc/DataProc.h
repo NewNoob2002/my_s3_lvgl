@@ -2,7 +2,7 @@
 #define __DATA_PROC_H
 
 #include "Utils/DataCenter/DataCenter.h"
-// #include "../HAL/HAL_Def.h"
+#include "HAL_Define.h"
 #include "DataProc_Def.h"
 
 #define DATA_PROC_INIT_DEF(name)   void _DP_##name##_Init(Account* account)

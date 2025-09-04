@@ -111,19 +111,19 @@ private:
         uint16_t minutes = (uint16_t)(leftOfDecimal % 100);
         uint32_t multiplier = 10000000UL;
         uint32_t tenMillionthsOfMinutes = minutes * multiplier;
-      
+
         deg.deg = (int16_t)(leftOfDecimal / 100);
-      
+
         while (isdigit(*term))
-          ++term;
-      
+            ++term;
+
         if (*term == '.')
-          while (isdigit(*++term))
-          {
-            multiplier /= 10;
-            tenMillionthsOfMinutes += (*term - '0') * multiplier;
-          }
-      
+            while (isdigit(*++term))
+            {
+                multiplier /= 10;
+                tenMillionthsOfMinutes += (*term - '0') * multiplier;
+            }
+
         deg.billionths = (5 * tenMillionthsOfMinutes + 1) / 3;
         deg.negative = false;
     }
@@ -133,19 +133,19 @@ private:
         uint16_t minutes = (uint16_t)(leftOfDecimal % 100);
         uint32_t multiplier = 10000000UL;
         uint32_t tenMillionthsOfMinutes = minutes * multiplier;
-      
+
         deg.deg = (int16_t)(leftOfDecimal / 100);
-      
+
         while (isdigit(*term))
-          ++term;
-      
+            ++term;
+
         if (*term == '.')
-          while (isdigit(*++term))
-          {
-            multiplier /= 10;
-            tenMillionthsOfMinutes += (*term - '0') * multiplier;
-          }
-      
+            while (isdigit(*++term))
+            {
+                multiplier /= 10;
+                tenMillionthsOfMinutes += (*term - '0') * multiplier;
+            }
+
         deg.billionths = (5 * tenMillionthsOfMinutes + 1) / 3;
         deg.negative = false;
     }
@@ -165,16 +165,19 @@ public:
         updated = false;
         return date;
     }
-    uint16_t year(){
+    uint16_t year()
+    {
         updated = false;
         uint16_t year = date % 100;
         return year + 2000;
     }
-    uint8_t month(){
+    uint8_t month()
+    {
         updated = false;
         return (date / 100) % 100;
     }
-    uint8_t day(){
+    uint8_t day()
+    {
         updated = false;
         return date / 10000;
     }
@@ -193,7 +196,8 @@ private:
         lastCommitTime = millis();
         valid = updated = true;
     }
-    void setDate(const char *term){
+    void setDate(const char *term)
+    {
         newDate = atol(term);
     }
 };
@@ -220,7 +224,7 @@ public:
     uint8_t minute()
     {
         updated = false;
-        return (time / 100) % 100;  
+        return (time / 100) % 100;
     }
     uint8_t second()
     {
@@ -245,7 +249,8 @@ private:
     void setTime(const char *term)
     {
         bool negative = *term == '-';
-        if (negative) ++term;
+        if (negative)
+            ++term;
         int32_t ret = (int32_t)atol(term);
         // while (isdigit(*term)) ++term;
         // if (*term == '.' && isdigit(term[1]))
@@ -280,8 +285,28 @@ private:
     bool valid, updated;
     uint32_t lastCommitTime;
     int32_t val, newval;
-    void commit();
-    void set(const char *term);
+    void commit()
+    {
+        val = newval;
+        lastCommitTime = millis();
+        valid = updated = true;
+    }
+    void set(const char *term)
+    {
+        bool negative = *term == '-';
+        if (negative)
+            ++term;
+        int32_t ret = 100 * (int32_t)atol(term);
+        while (isdigit(*term))
+            ++term;
+        if (*term == '.' && isdigit(term[1]))
+        {
+            ret += 10 * (term[1] - '0');
+            if (isdigit(term[2]))
+                ret += term[2] - '0';
+        }
+        newval = negative ? -ret : ret;
+    }
 };
 
 struct TinyGPSSpeed : TinyGPSDecimal
@@ -313,21 +338,50 @@ struct TinyGPSHDOP : TinyGPSDecimal
 class X_GNSS
 {
 public:
-    X_GNSS() : rtkParse(nullptr){
-
+    enum
+    {
+        GPS_SENTENCE_GGA,
+        GPS_SENTENCE_RMC,
+        GPS_SENTENCE_OTHER
     };
-    ~X_GNSS();
+
+    X_GNSS() : rtkParse(nullptr) {
+
+               };
+    ~X_GNSS()
+    {
+        if (rtkParse)
+            sempStopParser(&rtkParse);
+
+        rtkParse = nullptr;
+    }
+
+    void begin(SEMP_PARSE_STATE *rtkParse)
+    {
+        this->rtkParse = rtkParse;
+    }
 
     void decode(char c);
 
+
+    void commitAll();
     TinyGPSLocation location;
     TinyGPSDate date;
     TinyGPSTime time;
     TinyGPSSpeed speed;
     TinyGPSCourse course;
     TinyGPSAltitude altitude;
-    //TinyGPSInteger satellites;
+    // TinyGPSInteger satellites;
     TinyGPSHDOP hdop;
+
+    static const char *libraryVersion() { return _GPS_VERSION; }
+
+    static double distanceBetween(double lat1, double long1, double lat2, double long2);
+    static double courseTo(double lat1, double long1, double lat2, double long2);
+    static const char *cardinal(double course);
+
+    static int32_t parseDecimal(const char *term);
+    static void parseDegrees(const char *term, RawDegrees &deg);
 
 private:
     SEMP_PARSE_STATE *rtkParse;
