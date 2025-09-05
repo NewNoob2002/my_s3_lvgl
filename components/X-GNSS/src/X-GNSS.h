@@ -3,6 +3,17 @@
 #include "Arduino.h"
 #include "SparkFun_Extensible_Message_Parser.h"
 
+#define CONFIG_GPS_DEBUG 1
+#if defined(CONFIG_GPS_DEBUG)
+#define GPS_LOG_INFO(format, ...)  log_i("[GPS] [Info] " format, ##__VA_ARGS__)
+#define GPS_LOG_WARN(format, ...)  log_w("[GPS] [Warn] " format, ##__VA_ARGS__)
+#define GPS_LOG_ERROR(format, ...) log_e("[GPS] [Error] " format, ##__VA_ARGS__)
+#else
+#define GPS_LOG_INFO(...)
+#define GPS_LOG_WARN(...)
+#define GPS_LOG_ERROR(...)
+#endif
+
 #define _GPS_VERSION "1.0.0" // software version of this library
 #define _GPS_MPH_PER_KNOT 1.15077945
 #define _GPS_MPS_PER_KNOT 0.51444444
@@ -12,6 +23,11 @@
 #define _GPS_FEET_PER_METER 3.2808399
 #define _GPS_MAX_FIELD_SIZE 15
 #define _GPS_EARTH_MEAN_RADIUS 6371009 // old: 6372795
+
+// COMBINE宏用于将句子类型和字段编号组合成唯一标识符
+#define COMBINE(sentence_type, term_number) (((unsigned)(sentence_type) << 5) | term_number)
+
+class X_GNSS;
 
 struct RawDegrees
 {
@@ -105,50 +121,8 @@ private:
         lastCommitTime = millis();
         valid = updated = true;
     }
-    void setLatitude(const char *term, RawDegrees &deg)
-    {
-        uint32_t leftOfDecimal = (uint32_t)atol(term);
-        uint16_t minutes = (uint16_t)(leftOfDecimal % 100);
-        uint32_t multiplier = 10000000UL;
-        uint32_t tenMillionthsOfMinutes = minutes * multiplier;
-
-        deg.deg = (int16_t)(leftOfDecimal / 100);
-
-        while (isdigit(*term))
-            ++term;
-
-        if (*term == '.')
-            while (isdigit(*++term))
-            {
-                multiplier /= 10;
-                tenMillionthsOfMinutes += (*term - '0') * multiplier;
-            }
-
-        deg.billionths = (5 * tenMillionthsOfMinutes + 1) / 3;
-        deg.negative = false;
-    }
-    void setLongitude(const char *term, RawDegrees &deg)
-    {
-        uint32_t leftOfDecimal = (uint32_t)atol(term);
-        uint16_t minutes = (uint16_t)(leftOfDecimal % 100);
-        uint32_t multiplier = 10000000UL;
-        uint32_t tenMillionthsOfMinutes = minutes * multiplier;
-
-        deg.deg = (int16_t)(leftOfDecimal / 100);
-
-        while (isdigit(*term))
-            ++term;
-
-        if (*term == '.')
-            while (isdigit(*++term))
-            {
-                multiplier /= 10;
-                tenMillionthsOfMinutes += (*term - '0') * multiplier;
-            }
-
-        deg.billionths = (5 * tenMillionthsOfMinutes + 1) / 3;
-        deg.negative = false;
-    }
+    void setLatitude(const char *term);
+    void setLongitude(const char *term);
 };
 
 struct TinyGPSDate
@@ -309,6 +283,40 @@ private:
     }
 };
 
+struct TinyGPSInteger
+{
+    friend class X_GNSS;
+
+public:
+    bool isValid() const { return valid; }
+    bool isUpdated() const { return updated; }
+    uint32_t age() const { return valid ? millis() - lastCommitTime : (uint32_t)ULONG_MAX; }
+    uint32_t value()
+    {
+        updated = false;
+        return val;
+    }
+
+    TinyGPSInteger() : valid(false), updated(false), val(0)
+    {
+    }
+
+private:
+    bool valid, updated;
+    uint32_t lastCommitTime;
+    uint32_t val, newval;
+    void commit()
+    {
+        val = newval;
+        lastCommitTime = millis();
+        valid = updated = true;
+    }
+    void set(const char *term)
+    {
+        newval = atol(term);
+    }
+};
+
 struct TinyGPSSpeed : TinyGPSDecimal
 {
     double knots() { return value() / 100.0; }
@@ -345,9 +353,7 @@ public:
         GPS_SENTENCE_OTHER
     };
 
-    X_GNSS() : rtkParse(nullptr) {
-
-               };
+    X_GNSS();
     ~X_GNSS()
     {
         if (rtkParse)
@@ -363,6 +369,8 @@ public:
 
     void decode(char c);
     void nemaHandler(uint8_t *response, uint16_t length);
+    void parseCompleteSentence(const char *sentence);
+    void parseTerm(const char *term);
 
     void commitAll();
     TinyGPSLocation location;
@@ -371,10 +379,14 @@ public:
     TinyGPSSpeed speed;
     TinyGPSCourse course;
     TinyGPSAltitude altitude;
-    // TinyGPSInteger satellites;
+    TinyGPSInteger satellites;
     TinyGPSHDOP hdop;
 
     static const char *libraryVersion() { return _GPS_VERSION; }
+    void getFirmwareVersion(char *p_buf)
+    {
+        strcpy(p_buf, this->firmwareVersion);
+    }
 
     static double distanceBetween(double lat1, double long1, double lat2, double long2);
     static double courseTo(double lat1, double long1, double lat2, double long2);
@@ -383,10 +395,14 @@ public:
     static int32_t parseDecimal(const char *term);
     static void parseDegrees(const char *term, RawDegrees &deg);
 
-private:
-    SEMP_PARSE_STATE *rtkParse;
+public:
     uint8_t curSentenceType;
     uint8_t curTermNumber;
+    bool sentenceHasFix;
+    char firmwareVersion[16];
+
+private:
+    SEMP_PARSE_STATE *rtkParse;
 };
 
 #endif

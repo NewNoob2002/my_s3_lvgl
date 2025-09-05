@@ -47,7 +47,7 @@ static void onTimer(Account* account)
         lastStatus = nowStatus;
     }
 
-    if (satellites >= 3)
+    if (satellites >= 7)
     {
         account->Commit(&gpsInfo, sizeof(gpsInfo));
         account->Publish();

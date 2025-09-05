@@ -7,7 +7,6 @@ using namespace HAL;
 HardwareSerial *gnssSerial = nullptr;
 SEMP_PARSE_STATE *rtkParse = nullptr;
 X_GNSS *gnss = nullptr;
-static GPS_Info_t gpsInfo;
 // List the parsers to be included
 SEMP_PARSE_ROUTINE const rtkParserTable[] = {
     sempNmeaPreamble,
@@ -19,6 +18,9 @@ const char *const rtkParserNames[] = {
     "NMEA",
 };
 const int rtkParserNameCount = sizeof(rtkParserNames) / sizeof(rtkParserNames[0]);
+
+
+void gps_dump_info(GPS_Info_t *info);
 
 void GPS_HotStart()
 {
@@ -40,138 +42,21 @@ void GPS_Freset()
     gnssSerial->println("$PCAS10,3*1F");
 }
 
-
-// GNGGA解析函数
-void parseGNGGA(const String &nmea)
-{
-    // GNGGA格式: $GNGGA,time,lat,lat_dir,lon,lon_dir,quality,num_sv,hdop,alt,alt_unit,sep,sep_unit,diff_age,diff_station*checksum
-    // 示例: $GNGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
-
-    int comma_count = 0;
-    int start_pos = 0;
-    int end_pos = 0;
-
-    // 跳过$GNGGA,
-    start_pos = nmea.indexOf(',') + 1;
-
-    while (start_pos < nmea.length())
-    {
-        end_pos = nmea.indexOf(',', start_pos);
-        if (end_pos == -1)
-        {
-            end_pos = nmea.indexOf('*', start_pos);
-            if (end_pos == -1)
-                end_pos = nmea.length();
-        }
-
-        String field = nmea.substring(start_pos, end_pos);
-
-        switch (comma_count)
-        {
-        case 0: // UTC时间 (HHMMSS.sss)
-            if (field.length() >= 6)
-            {
-                gpsInfo.clock.hour = field.substring(0, 2).toInt();
-                gpsInfo.clock.minute = field.substring(2, 4).toInt();
-                gpsInfo.clock.second = field.substring(4, 6).toInt();
-            }
-            break;
-
-        case 1: // 纬度 (DDMM.mmmm)
-            if (field.length() > 0)
-            {
-                gpsInfo.latitude = gnss->parseDecimal(field.c_str());
-            }
-            break;
-
-        case 2: // 纬度方向 (N/S)
-            if (field == "S")
-            {
-                gpsInfo.latitude = -gpsInfo.latitude;
-            }
-            break;
-
-        case 3: // 经度 (DDDMM.mmmm)
-            if (field.length() > 0)
-            {
-                gpsInfo.longitude = gnss->parseDecimal(field.c_str());
-            }
-            break;
-
-        case 4: // 经度方向 (E/W)
-            if (field == "W")
-            {
-                gpsInfo.longitude = -gpsInfo.longitude;
-            }
-            break;
-
-        case 5: // GPS质量指示 (0=无效, 1=GPS, 2=DGPS)
-            gpsInfo.quality = field.toInt();
-            break;
-
-        case 6: // 使用的卫星数量
-            gpsInfo.satellites = field.toInt();
-            break;
-
-        case 7: // 水平精度因子
-            gpsInfo.hdop = field.toFloat();
-            break;
-
-        case 8: // 海拔高度
-            gpsInfo.altitude = field.toFloat();
-            break;
-
-        case 9: // 海拔单位 (M=米)
-            // 通常为M，可以忽略
-            break;
-
-        case 10: // 大地水准面高度
-            gpsInfo.geoid_height = field.toFloat();
-            break;
-
-        case 11: // 大地水准面单位
-            // 通常为M，可以忽略
-            break;
-
-        case 12: // DGPS数据年龄
-            gpsInfo.dgps_age = field.toFloat();
-            break;
-
-        case 13: // DGPS参考站ID
-            gpsInfo.dgps_station = field.toInt();
-            break;
-        }
-
-        comma_count++;
-        start_pos = end_pos + 1;
-    }
-
-    // 设置GPS有效标志
-    gpsInfo.isValid = (gpsInfo.quality > 0 && gpsInfo.satellites >= 4);
-
-    gnss->commitAll();
-}
-
 void processUart1Message(SEMP_PARSE_STATE *parse, uint16_t type)
 {
     String nema = String((char *)parse->buffer);
     if (nema.indexOf("GPTXT") != -1)
     {
-        strcpy(gpsInfo.firmwareVersion, nema.substring(nema.indexOf("V"), nema.indexOf("*")).c_str());
+        strcpy(gnss->firmwareVersion, nema.substring(nema.indexOf("V"), nema.indexOf("*")).c_str());
     }
-    else if (nema.indexOf("GNGGA") != -1)
+    else
     {
-        parseGNGGA(nema);
-    }
-    else if (nema.indexOf("GNGSA") != -1)
-    {
-        printf("%s\n", nema.c_str());
+        gnss->nemaHandler(parse->buffer, parse->length);
     }
 }
 
 void HAL::GPS_Init()
 {
-    memset(&gpsInfo, 0, sizeof(gpsInfo));
     // Initialize the main parser
     rtkParse = sempBeginParser(rtkParserTable, rtkParserCount, rtkParserNames,
                                rtkParserNameCount,
@@ -244,15 +129,31 @@ void HAL::GPS_Update(void *e)
     vTaskDelete(NULL);
 }
 
-void HAL::GPS_GetInfo(GPS_Info_t *info)
+bool HAL::GPS_GetInfo(GPS_Info_t *info)
 {
-    info->satellites = gpsInfo.satellites;
-    info->isVaild = gpsInfo.isVaild;
-    info->clock = gpsInfo.clock;
-    info->longitude = gpsInfo.longitude;
-    info->latitude = gpsInfo.latitude;
-    info->altitude = gpsInfo.altitude;
-    info->course = gpsInfo.course;
-    info->speed = gpsInfo.speed;
-    memcpy(info->firmwareVersion, gpsInfo.firmwareVersion, sizeof(gpsInfo.firmwareVersion));
+    memset(info, 0, sizeof(GPS_Info_t));
+
+    info->isVaild = gnss->location.isValid();
+    info->longitude = gnss->location.lng();
+    info->latitude = gnss->location.lat();
+    info->altitude = gnss->altitude.meters();
+    info->speed = gnss->speed.kmph();
+    info->course = gnss->course.deg();
+
+    info->clock.year = gnss->date.year();
+    info->clock.month = gnss->date.month();
+    info->clock.day = gnss->date.day();
+    info->clock.hour = gnss->time.hour();
+    info->clock.minute = gnss->time.minute();
+    info->clock.second = gnss->time.second();
+    info->satellites = gnss->satellites.value();
+    strcpy(info->firmwareVersion, gnss->firmwareVersion);
+
+    //gps_dump_info(info);
+    return info->isVaild;
+}
+
+void gps_dump_info(GPS_Info_t *info)
+{
+    GPS_LOG_INFO("Valid: %s, Longitude: %f, Latitude: %f, Altitude: %f, Speed: %f, Course: %f, Satellites: %d, Firmware Version: %s, Year: %d, Month: %d, Day: %d, Hour: %d, Minute: %d, Second: %d", info->isVaild ? "true" : "false", info->longitude, info->latitude, info->altitude, info->speed, info->course, info->satellites, info->firmwareVersion, info->clock.year, info->clock.month, info->clock.day, info->clock.hour, info->clock.minute, info->clock.second);
 }
