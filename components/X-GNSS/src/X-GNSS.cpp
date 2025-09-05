@@ -1,9 +1,32 @@
 #include "X-GNSS.h"
 
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define _RMCterm "RMC"
+#define _GGAterm "GGA"
+
 void X_GNSS::decode(char c)
 {
     if(rtkParse)
         sempParseNextByte(rtkParse, c);
+}
+
+void X_GNSS::nemaHandler(uint8_t *response, uint16_t length)
+{
+    // Is this a NMEA sentence?
+    if (response[0] == '$')
+    {
+      response[length] = '\0'; // Force terminator because strncasestr does not exist
+      if (response[0] == 'G' && strchr("PNABL", response[1]) != NULL && !strcmp((char *)response + 2, _RMCterm))
+        curSentenceType = GPS_SENTENCE_RMC;
+      else if (response[0] == 'G' && strchr("PNABL", response[1]) != NULL && !strcmp((char *)response + 2, _GGAterm))
+        curSentenceType = GPS_SENTENCE_GGA;
+      else
+        curSentenceType = GPS_SENTENCE_OTHER;
+    }
 }
 
 void X_GNSS::commitAll()

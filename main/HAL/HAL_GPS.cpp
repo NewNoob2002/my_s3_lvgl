@@ -40,124 +40,115 @@ void GPS_Freset()
     gnssSerial->println("$PCAS10,3*1F");
 }
 
-// 解析坐标函数 (DDMM.mmmm 或 DDDMM.mmmm 格式)
-double parseCoordinate(const String& coord)
-{
-    if (coord.length() < 4) return 0.0;
-    
-    // 找到小数点位置
-    int dot_pos = coord.indexOf('.');
-    if (dot_pos == -1) return 0.0;
-    
-    // 提取度数和分钟
-    String degrees_str = coord.substring(0, dot_pos - 2);
-    String minutes_str = coord.substring(dot_pos - 2);
-    
-    double degrees = degrees_str.toDouble();
-    double minutes = minutes_str.toDouble();
-    
-    // 转换为十进制度数
-    return degrees + (minutes / 60.0);
-}
+
 // GNGGA解析函数
-void parseGNGGA(const String& nmea)
+void parseGNGGA(const String &nmea)
 {
     // GNGGA格式: $GNGGA,time,lat,lat_dir,lon,lon_dir,quality,num_sv,hdop,alt,alt_unit,sep,sep_unit,diff_age,diff_station*checksum
     // 示例: $GNGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47
-    
+
     int comma_count = 0;
     int start_pos = 0;
     int end_pos = 0;
-    
+
     // 跳过$GNGGA,
     start_pos = nmea.indexOf(',') + 1;
-    
-    while (start_pos < nmea.length() && comma_count < 15) {
+
+    while (start_pos < nmea.length())
+    {
         end_pos = nmea.indexOf(',', start_pos);
-        if (end_pos == -1) {
+        if (end_pos == -1)
+        {
             end_pos = nmea.indexOf('*', start_pos);
-            if (end_pos == -1) end_pos = nmea.length();
+            if (end_pos == -1)
+                end_pos = nmea.length();
         }
-        
+
         String field = nmea.substring(start_pos, end_pos);
-        
-        switch (comma_count) {
-            case 0: // UTC时间 (HHMMSS.sss)
-                if (field.length() >= 6) {
-                    gpsInfo.clock.hour = field.substring(0, 2).toInt();
-                    gpsInfo.clock.minute = field.substring(2, 4).toInt();
-                    gpsInfo.clock.second = field.substring(4, 6).toInt();
-                }
-                break;
-                
-            case 1: // 纬度 (DDMM.mmmm)
-                if (field.length() > 0) {
-                    gpsInfo.latitude = parseCoordinate(field);
-                }
-                break;
-                
-            case 2: // 纬度方向 (N/S)
-                if (field == "S") {
-                    gpsInfo.latitude = -gpsInfo.latitude;
-                }
-                break;
-                
-            case 3: // 经度 (DDDMM.mmmm)
-                if (field.length() > 0) {
-                    gpsInfo.longitude = parseCoordinate(field);
-                }
-                break;
-                
-            case 4: // 经度方向 (E/W)
-                if (field == "W") {
-                    gpsInfo.longitude = -gpsInfo.longitude;
-                }
-                break;
-                
-            case 5: // GPS质量指示 (0=无效, 1=GPS, 2=DGPS)
-                gpsInfo.quality = field.toInt();
-                break;
-                
-            case 6: // 使用的卫星数量
-                gpsInfo.satellites = field.toInt();
-                break;
-                
-            case 7: // 水平精度因子
-                gpsInfo.hdop = field.toFloat();
-                break;
-                
-            case 8: // 海拔高度
-                gpsInfo.altitude = field.toFloat();
-                break;
-                
-            case 9: // 海拔单位 (M=米)
-                // 通常为M，可以忽略
-                break;
-                
-            case 10: // 大地水准面高度
-                gpsInfo.geoid_height = field.toFloat();
-                break;
-                
-            case 11: // 大地水准面单位
-                // 通常为M，可以忽略
-                break;
-                
-            case 12: // DGPS数据年龄
-                gpsInfo.dgps_age = field.toFloat();
-                break;
-                
-            case 13: // DGPS参考站ID
-                gpsInfo.dgps_station = field.toInt();
-                break;
+
+        switch (comma_count)
+        {
+        case 0: // UTC时间 (HHMMSS.sss)
+            if (field.length() >= 6)
+            {
+                gpsInfo.clock.hour = field.substring(0, 2).toInt();
+                gpsInfo.clock.minute = field.substring(2, 4).toInt();
+                gpsInfo.clock.second = field.substring(4, 6).toInt();
+            }
+            break;
+
+        case 1: // 纬度 (DDMM.mmmm)
+            if (field.length() > 0)
+            {
+                gpsInfo.latitude = gnss->parseDecimal(field.c_str());
+            }
+            break;
+
+        case 2: // 纬度方向 (N/S)
+            if (field == "S")
+            {
+                gpsInfo.latitude = -gpsInfo.latitude;
+            }
+            break;
+
+        case 3: // 经度 (DDDMM.mmmm)
+            if (field.length() > 0)
+            {
+                gpsInfo.longitude = gnss->parseDecimal(field.c_str());
+            }
+            break;
+
+        case 4: // 经度方向 (E/W)
+            if (field == "W")
+            {
+                gpsInfo.longitude = -gpsInfo.longitude;
+            }
+            break;
+
+        case 5: // GPS质量指示 (0=无效, 1=GPS, 2=DGPS)
+            gpsInfo.quality = field.toInt();
+            break;
+
+        case 6: // 使用的卫星数量
+            gpsInfo.satellites = field.toInt();
+            break;
+
+        case 7: // 水平精度因子
+            gpsInfo.hdop = field.toFloat();
+            break;
+
+        case 8: // 海拔高度
+            gpsInfo.altitude = field.toFloat();
+            break;
+
+        case 9: // 海拔单位 (M=米)
+            // 通常为M，可以忽略
+            break;
+
+        case 10: // 大地水准面高度
+            gpsInfo.geoid_height = field.toFloat();
+            break;
+
+        case 11: // 大地水准面单位
+            // 通常为M，可以忽略
+            break;
+
+        case 12: // DGPS数据年龄
+            gpsInfo.dgps_age = field.toFloat();
+            break;
+
+        case 13: // DGPS参考站ID
+            gpsInfo.dgps_station = field.toInt();
+            break;
         }
-        
+
         comma_count++;
         start_pos = end_pos + 1;
     }
-    
+
     // 设置GPS有效标志
     gpsInfo.isValid = (gpsInfo.quality > 0 && gpsInfo.satellites >= 4);
-    
+
     gnss->commitAll();
 }
 

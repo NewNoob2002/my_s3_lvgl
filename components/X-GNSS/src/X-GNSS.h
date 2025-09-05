@@ -362,7 +362,7 @@ public:
     }
 
     void decode(char c);
-
+    void nemaHandler(uint8_t *response, uint16_t length);
 
     void commitAll();
     TinyGPSLocation location;
@@ -385,6 +385,8 @@ public:
 
 private:
     SEMP_PARSE_STATE *rtkParse;
+    uint8_t curSentenceType;
+    uint8_t curTermNumber;
 };
 
 #endif

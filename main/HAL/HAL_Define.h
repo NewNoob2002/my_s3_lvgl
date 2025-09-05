@@ -80,14 +80,6 @@ namespace HAL
         bool isVaild;
         Clock_Info_t clock;
         char firmwareVersion[16];
-        
-        // GNGGA额外字段
-        uint8_t quality;           // GPS质量指示 (0=无效, 1=GPS, 2=DGPS)
-        float hdop;               // 水平精度因子
-        float geoid_height;       // 大地水准面高度
-        float dgps_age;           // DGPS数据年龄
-        int16_t dgps_station;     // DGPS参考站ID
-        bool isValid;             // GPS数据有效标志
     } GPS_Info_t;
 }
 
